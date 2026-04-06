@@ -1,0 +1,179 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum RoleType {
+  ADMIN
+  PLAYER
+}
+
+enum CompetitionType {
+  LEAGUE
+  TOURNAMENT
+  FRIENDLY_SERIES
+}
+
+enum FixtureType {
+  LEAGUE
+  FRIENDLY
+}
+
+enum AttendanceStatus {
+  GOING
+  NOT_GOING
+  MAYBE
+}
+
+enum CardType {
+  YELLOW
+  RED
+}
+
+enum PaymentType {
+  MONTHLY
+  EVENT
+}
+
+enum PaymentStatus {
+  PAID
+  PENDING
+}
+
+model User {
+  id          String   @id @default(uuid())
+  firebaseUid String   @unique
+  name        String
+  email       String   @unique
+  role        RoleType @default(PLAYER)
+
+  attendances   Attendance[]
+  cards         Card[]
+  payments      Payment[]
+  votesCast     Vote[]       @relation("VotesCast")
+  votesReceived Vote[]       @relation("VotesReceived")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Competition {
+  id     String          @id @default(uuid())
+  name   String
+  type   CompetitionType
+  season String
+
+  fixtures Fixture[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Opponent {
+  id       String  @id @default(uuid())
+  name     String  @unique
+  badgeUrl String?
+
+  fixtures Fixture[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Fixture {
+  id            String      @id @default(uuid())
+  opponentId    String
+  homeScore     Int?
+  awayScore     Int?
+  isHome        Boolean
+  date          DateTime
+  location      String
+  type          FixtureType
+  competitionId String?
+  rsvpDeadline  DateTime?
+
+  opponent    Opponent     @relation(fields: [opponentId], references: [id])
+  competition Competition? @relation(fields: [competitionId], references: [id])
+  attendances Attendance[]
+  cards       Card[]
+  votes       Vote[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Attendance {
+  id        String           @id @default(uuid())
+  userId    String
+  fixtureId String
+  status    AttendanceStatus
+
+  user    User    @relation(fields: [userId], references: [id])
+  fixture Fixture @relation(fields: [fixtureId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, fixtureId])
+}
+
+model Card {
+  id        String   @id @default(uuid())
+  userId    String
+  fixtureId String
+  type      CardType
+
+  user    User    @relation(fields: [userId], references: [id])
+  fixture Fixture @relation(fields: [fixtureId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Event {
+  id                 String   @id @default(uuid())
+  title              String
+  description        String?
+  date               DateTime
+  contributionAmount Float
+
+  payments Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Payment {
+  id      String        @id @default(uuid())
+  userId  String
+  amount  Float
+  type    PaymentType
+  month   String? // E.g., "2024-01"
+  eventId String?
+  status  PaymentStatus @default(PENDING)
+
+  user  User   @relation(fields: [userId], references: [id])
+  event Event? @relation(fields: [eventId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Vote {
+  id         String @id @default(uuid())
+  fixtureId  String
+  voterId    String
+  votedForId String
+
+  fixture  Fixture @relation(fields: [fixtureId], references: [id])
+  voter    User    @relation("VotesCast", fields: [voterId], references: [id])
+  votedFor User    @relation("VotesReceived", fields: [votedForId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([fixtureId, voterId])
+}
