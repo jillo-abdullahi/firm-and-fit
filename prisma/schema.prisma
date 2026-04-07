@@ -12,6 +12,26 @@ enum RoleType {
   VIEWER
 }
 
+enum Position {
+  GK
+  CB
+  LB
+  RB
+  LWB
+  RWB
+  CDM
+  CM
+  CAM
+  LM
+  RM
+  LW
+  RW
+  ST
+  CF
+}
+
+
+
 enum CompetitionType {
   LEAGUE
   TOURNAMENT
@@ -50,6 +70,9 @@ model User {
   name        String
   email       String   @unique
   role        RoleType @default(VIEWER)
+  photoUrl    String?
+  jerseyNumber Int?
+  position    Position?
 
   attendances   Attendance[]
   cards         Card[]

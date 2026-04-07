@@ -1,5 +1,0 @@
--- AlterEnum
-ALTER TYPE "RoleType" ADD VALUE 'VIEWER';
-
--- AlterTable
-ALTER TABLE "User" ALTER COLUMN "role" SET DEFAULT 'VIEWER';
