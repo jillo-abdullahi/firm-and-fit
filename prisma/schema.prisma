@@ -36,11 +36,18 @@ enum CompetitionType {
   LEAGUE
   TOURNAMENT
   FRIENDLY_SERIES
+  SISI_KWA_SISI
 }
 
 enum FixtureType {
   LEAGUE
   FRIENDLY
+  SISI_KWA_SISI
+}
+
+enum SisiTeam {
+  RED
+  GREEN
 }
 
 enum AttendanceStatus {
@@ -111,17 +118,17 @@ model Opponent {
 
 model Fixture {
   id            String      @id @default(uuid())
-  opponentId    String
+  opponentId    String?
   homeScore     Int?
   awayScore     Int?
-  isHome        Boolean
+  isHome        Boolean?
   date          DateTime
   location      String
   type          FixtureType
   competitionId String?
   rsvpDeadline  DateTime?
 
-  opponent    Opponent     @relation(fields: [opponentId], references: [id])
+  opponent    Opponent?    @relation(fields: [opponentId], references: [id])
   competition Competition? @relation(fields: [competitionId], references: [id])
   attendances Attendance[]
   cards       Card[]
@@ -206,11 +213,12 @@ model Vote {
 }
 
 model Goal {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   fixtureId String
   scorerId  String
   assistId  String?
   minute    Int?
+  team      SisiTeam?
 
   fixture Fixture @relation(fields: [fixtureId], references: [id])
   scorer  User    @relation("GoalScorer", fields: [scorerId], references: [id])

@@ -5,13 +5,13 @@ import { prisma } from '../db/prisma';
 
 const FixtureResponse = z.object({
   id: z.string(),
-  opponentId: z.string(),
+  opponentId: z.string().nullable(),
   homeScore: z.number().nullable(),
   awayScore: z.number().nullable(),
-  isHome: z.boolean(),
+  isHome: z.boolean().nullable(),
   date: z.string(),
   location: z.string(),
-  type: z.enum(['LEAGUE', 'FRIENDLY']),
+  type: z.enum(['LEAGUE', 'FRIENDLY', 'SISI_KWA_SISI']),
   competitionId: z.string().nullable(),
   rsvpDeadline: z.string().nullable()
 });
@@ -71,11 +71,11 @@ export const fixtureRouter: FastifyPluginAsyncZod = async (fastify) => {
       tags: ['Fixtures'],
       summary: 'Create fixture',
       body: z.object({
-        opponentId: z.string(),
-        isHome: z.boolean(),
-        date: z.string(), // ISO string
+        opponentId: z.string().optional(),
+        isHome: z.boolean().optional(),
+        date: z.string(),
         location: z.string(),
-        type: z.enum(['LEAGUE', 'FRIENDLY']),
+        type: z.enum(['LEAGUE', 'FRIENDLY', 'SISI_KWA_SISI']),
         competitionId: z.string().optional(),
         rsvpDeadline: z.string().optional()
       }),
@@ -151,14 +151,16 @@ export const fixtureRouter: FastifyPluginAsyncZod = async (fastify) => {
       body: z.object({
         scorerId: z.string(),
         assistId: z.string().optional(),
-        minute: z.number().optional()
+        minute: z.number().optional(),
+        team: z.enum(['RED', 'GREEN']).optional()
       }),
       response: {
         200: z.object({
           id: z.string(),
           scorerId: z.string(),
           assistId: z.string().nullable(),
-          minute: z.number().nullable()
+          minute: z.number().nullable(),
+          team: z.enum(['RED', 'GREEN']).nullable()
         })
       }
     }
@@ -168,7 +170,8 @@ export const fixtureRouter: FastifyPluginAsyncZod = async (fastify) => {
         fixtureId: request.params.id,
         scorerId: request.body.scorerId,
         assistId: request.body.assistId,
-        minute: request.body.minute
+        minute: request.body.minute,
+        team: request.body.team
       }
     });
   });
@@ -185,7 +188,8 @@ export const fixtureRouter: FastifyPluginAsyncZod = async (fastify) => {
           scorerName: z.string(),
           assistId: z.string().nullable(),
           assistName: z.string().nullable(),
-          minute: z.number().nullable()
+          minute: z.number().nullable(),
+          team: z.enum(['RED', 'GREEN']).nullable()
         }))
       }
     }
@@ -207,7 +211,8 @@ export const fixtureRouter: FastifyPluginAsyncZod = async (fastify) => {
       scorerName: g.scorer.name,
       assistId: g.assistId,
       assistName: g.assist?.name || null,
-      minute: g.minute
+      minute: g.minute,
+      team: g.team
     }));
   });
 

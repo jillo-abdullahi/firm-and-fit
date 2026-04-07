@@ -6,7 +6,7 @@ import { prisma } from '../db/prisma';
 const CompetitionResponse = z.object({
   id: z.string(),
   name: z.string(),
-  type: z.enum(['LEAGUE', 'TOURNAMENT', 'FRIENDLY_SERIES']),
+  type: z.enum(['LEAGUE', 'TOURNAMENT', 'FRIENDLY_SERIES', 'SISI_KWA_SISI']),
   season: z.string()
 });
 
@@ -30,7 +30,7 @@ export const competitionRouter: FastifyPluginAsyncZod = async (fastify) => {
       summary: 'Create competition',
       body: z.object({
         name: z.string(),
-        type: z.enum(['LEAGUE', 'TOURNAMENT', 'FRIENDLY_SERIES']),
+        type: z.enum(['LEAGUE', 'TOURNAMENT', 'FRIENDLY_SERIES', 'SISI_KWA_SISI']),
         season: z.string()
       }),
       response: {
