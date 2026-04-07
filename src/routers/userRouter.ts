@@ -14,7 +14,7 @@ export const userRouter: FastifyPluginAsyncZod = async (fastify) => {
           id: z.string(),
           name: z.string(),
           email: z.string(),
-          role: z.enum(['ADMIN', 'PLAYER'])
+          role: z.enum(['ADMIN', 'PLAYER', 'VIEWER'])
         }))
       }
     }
@@ -29,7 +29,7 @@ export const userRouter: FastifyPluginAsyncZod = async (fastify) => {
       tags: ['Users'],
       summary: 'Update user role',
       params: z.object({ id: z.string() }),
-      body: z.object({ role: z.enum(['ADMIN', 'PLAYER']) }),
+      body: z.object({ role: z.enum(['ADMIN', 'PLAYER', 'VIEWER']) }),
       response: {
         200: z.object({ success: z.boolean() })
       }

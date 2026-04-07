@@ -1,6 +1,6 @@
 import { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
-import { requireAdmin, requireAuth } from '../plugins/auth';
+import { requireAdmin, requireAuth, requireTeamMember } from '../plugins/auth';
 import { prisma } from '../db/prisma';
 
 export const paymentRouter: FastifyPluginAsyncZod = async (fastify) => {
@@ -56,7 +56,7 @@ export const paymentRouter: FastifyPluginAsyncZod = async (fastify) => {
   });
 
   fastify.get('/me', {
-    preHandler: [requireAuth],
+    preHandler: [requireTeamMember],
     schema: {
       tags: ['Payments'],
       summary: 'Get current user payments',

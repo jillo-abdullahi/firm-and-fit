@@ -1,11 +1,11 @@
 import { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
-import { requireAuth } from '../plugins/auth';
+import { requireAuth, requireTeamMember } from '../plugins/auth';
 import { prisma } from '../db/prisma';
 
 export const voteRouter: FastifyPluginAsyncZod = async (fastify) => {
   fastify.post('/', {
-    preHandler: [requireAuth],
+    preHandler: [requireTeamMember],
     schema: {
       tags: ['Votes'],
       summary: 'Vote Man of the Match',

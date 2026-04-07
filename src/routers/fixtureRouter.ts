@@ -141,4 +141,88 @@ export const fixtureRouter: FastifyPluginAsyncZod = async (fastify) => {
     await prisma.fixture.delete({ where: { id: request.params.id } });
     return { success: true };
   });
+
+  fastify.post('/:id/goals', {
+    preHandler: [requireAdmin],
+    schema: {
+      tags: ['Fixtures'],
+      summary: 'Add a goal',
+      params: z.object({ id: z.string() }),
+      body: z.object({
+        scorerId: z.string(),
+        assistId: z.string().optional(),
+        minute: z.number().optional()
+      }),
+      response: {
+        200: z.object({
+          id: z.string(),
+          scorerId: z.string(),
+          assistId: z.string().nullable(),
+          minute: z.number().nullable()
+        })
+      }
+    }
+  }, async (request) => {
+    return await prisma.goal.create({
+      data: {
+        fixtureId: request.params.id,
+        scorerId: request.body.scorerId,
+        assistId: request.body.assistId,
+        minute: request.body.minute
+      }
+    });
+  });
+
+  fastify.get('/:id/goals', {
+    schema: {
+      tags: ['Fixtures'],
+      summary: 'List goals for a fixture',
+      params: z.object({ id: z.string() }),
+      response: {
+        200: z.array(z.object({
+          id: z.string(),
+          scorerId: z.string(),
+          scorerName: z.string(),
+          assistId: z.string().nullable(),
+          assistName: z.string().nullable(),
+          minute: z.number().nullable()
+        }))
+      }
+    }
+  }, async (request) => {
+    const goals = await prisma.goal.findMany({
+      where: { fixtureId: request.params.id },
+      include: {
+        scorer: true,
+        assist: true
+      },
+      orderBy: {
+        minute: 'asc'
+      }
+    });
+
+    return goals.map((g) => ({
+      id: g.id,
+      scorerId: g.scorerId,
+      scorerName: g.scorer.name,
+      assistId: g.assistId,
+      assistName: g.assist?.name || null,
+      minute: g.minute
+    }));
+  });
+
+  fastify.delete('/:id/goals/:goalId', {
+    preHandler: [requireAdmin],
+    schema: {
+      tags: ['Fixtures'],
+      summary: 'Delete a goal',
+      params: z.object({ id: z.string(), goalId: z.string() }),
+      response: {
+        200: z.object({ success: z.boolean() })
+      }
+    }
+  }, async (request) => {
+    await prisma.goal.delete({ where: { id: request.params.goalId } });
+    return { success: true };
+  });
 };

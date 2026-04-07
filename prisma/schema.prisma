@@ -9,6 +9,7 @@ datasource db {
 enum RoleType {
   ADMIN
   PLAYER
+  VIEWER
 }
 
 enum CompetitionType {
@@ -48,13 +49,15 @@ model User {
   firebaseUid String   @unique
   name        String
   email       String   @unique
-  role        RoleType @default(PLAYER)
+  role        RoleType @default(VIEWER)
 
   attendances   Attendance[]
   cards         Card[]
   payments      Payment[]
   votesCast     Vote[]       @relation("VotesCast")
   votesReceived Vote[]       @relation("VotesReceived")
+  goalsScored   Goal[]       @relation("GoalScorer")
+  goalsAssisted Goal[]       @relation("GoalAssist")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -100,6 +103,7 @@ model Fixture {
   attendances Attendance[]
   cards       Card[]
   votes       Vote[]
+  goals       Goal[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -176,4 +180,19 @@ model Vote {
   updatedAt DateTime @updatedAt
 
   @@unique([fixtureId, voterId])
+}
+
+model Goal {
+  id        String   @id @default(uuid())
+  fixtureId String
+  scorerId  String
+  assistId  String?
+  minute    Int?
+
+  fixture Fixture @relation(fields: [fixtureId], references: [id])
+  scorer  User    @relation("GoalScorer", fields: [scorerId], references: [id])
+  assist  User?   @relation("GoalAssist", fields: [assistId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

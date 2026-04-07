@@ -30,7 +30,7 @@ export const authPlugin = fp(async (fastify, opts) => {
               firebaseUid: decodedUser.uid,
               email: decodedUser.email || '',
               name: decodedUser.name || 'Unknown',
-              role: 'PLAYER',
+              role: 'VIEWER',
             },
           });
         }
@@ -45,6 +45,17 @@ export const authPlugin = fp(async (fastify, opts) => {
 export const requireAuth = async (request: FastifyRequest, reply: FastifyReply) => {
   if (!request.user) {
     reply.status(401).send({ error: 'UNAUTHORIZED', message: 'Not authenticated' });
+    return reply;
+  }
+};
+
+export const requireTeamMember = async (request: FastifyRequest, reply: FastifyReply) => {
+  if (!request.user) {
+    reply.status(401).send({ error: 'UNAUTHORIZED', message: 'Not authenticated' });
+    return reply;
+  }
+  if (request.user.role === 'VIEWER') {
+    reply.status(403).send({ error: 'FORBIDDEN', message: 'Team member access required' });
     return reply;
   }
 };

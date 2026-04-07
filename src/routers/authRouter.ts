@@ -13,7 +13,7 @@ export const authRouter: FastifyPluginAsyncZod = async (fastify) => {
           id: z.string(),
           name: z.string(),
           email: z.string(),
-          role: z.enum(['ADMIN', 'PLAYER'])
+          role: z.enum(['ADMIN', 'PLAYER', 'VIEWER'])
         })
       }
     }

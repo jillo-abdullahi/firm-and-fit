@@ -1,5 +1,18 @@
+import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import { Pool } from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
+
+let prisma: PrismaClient;
+const url = process.env.DATABASE_URL;
+
+if (url?.startsWith('prisma+postgres://')) {
+  prisma = new PrismaClient({ accelerateUrl: url });
+} else {
+  const pool = new Pool({ connectionString: url });
+  const adapter = new PrismaPg(pool);
+  prisma = new PrismaClient({ adapter });
+}
 
 async function main() {
   const admin = await prisma.user.create({

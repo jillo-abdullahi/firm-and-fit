@@ -10,4 +10,13 @@ describe('Fixture Routes', () => {
     });
     expect(response.statusCode).toBe(401);
   });
+  test('POST /api/fixtures/:id/goals rejects if unauthenticated', async () => {
+    const app = getApp();
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/fixtures/f1/goals',
+      payload: { scorerId: 's1', minute: 90 }
+    });
+    expect(response.statusCode).toBe(401);
+  });
 });
