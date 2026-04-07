@@ -37,8 +37,8 @@ export const buildApp = async () => {
     openapi: {
       openapi: '3.0.0',
       info: {
-        title: 'Football Team Management API',
-        description: 'Fastify + Zod + Prisma Backend',
+        title: 'Firm & Fit Football Team Management API',
+        description: 'The official backend API for Firm & Fit Football Club. Manages fixtures, players, competitions, attendance, payments, voting, and disciplinary records specific to the club.',
         version: '1.0.0'
       },
     },
