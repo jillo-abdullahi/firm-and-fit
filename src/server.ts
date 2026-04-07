@@ -18,6 +18,7 @@ import { attendanceRouter } from './routers/attendanceRouter';
 import { eventRouter } from './routers/eventRouter';
 import { paymentRouter } from './routers/paymentRouter';
 import { voteRouter } from './routers/voteRouter';
+import { cardRouter } from './routers/cardRouter';
 
 export const buildApp = async () => {
   const app = Fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
@@ -69,6 +70,7 @@ export const buildApp = async () => {
   await app.register(eventRouter, { prefix: '/api/events' });
   await app.register(paymentRouter, { prefix: '/api/payments' });
   await app.register(voteRouter, { prefix: '/api/votes' });
+  await app.register(cardRouter, { prefix: '/api/cards' });
 
   return app;
 };

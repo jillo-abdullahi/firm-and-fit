@@ -28,7 +28,9 @@ export const userRouter: FastifyPluginAsyncZod = async (fastify) => {
           stats: z.object({
             goals: z.number(),
             assists: z.number(),
-            attendances: z.number()
+            attendances: z.number(),
+            yellowCards: z.number(),
+            redCards: z.number()
           })
         }))
       }
@@ -41,9 +43,11 @@ export const userRouter: FastifyPluginAsyncZod = async (fastify) => {
           select: {
             goalsScored: true,
             goalsAssisted: true,
-            attendances: { where: { status: 'GOING' } }
+            attendances: { where: { status: 'GOING' } },
+            cards: true
           }
-        }
+        },
+        cards: { select: { type: true } }
       }
     });
 
@@ -57,7 +61,9 @@ export const userRouter: FastifyPluginAsyncZod = async (fastify) => {
       stats: {
         goals: u._count.goalsScored,
         assists: u._count.goalsAssisted,
-        attendances: u._count.attendances
+        attendances: u._count.attendances,
+        yellowCards: u.cards.filter(c => c.type === 'YELLOW').length,
+        redCards: u.cards.filter(c => c.type === 'RED').length
       }
     }));
   });
@@ -95,13 +101,26 @@ export const userRouter: FastifyPluginAsyncZod = async (fastify) => {
           id: z.string(),
           name: z.string(),
           email: z.string(),
-          role: z.enum(['ADMIN', 'PLAYER', 'VIEWER'])
+          role: z.enum(['ADMIN', 'PLAYER', 'VIEWER']),
+          yellowCards: z.number(),
+          redCards: z.number()
         }))
       }
     }
   }, async () => {
-    const users = await prisma.user.findMany();
-    return users.map(u => ({ id: u.id, name: u.name, email: u.email, role: u.role }));
+    const users = await prisma.user.findMany({
+      include: {
+        cards: { select: { type: true } }
+      }
+    });
+    return users.map(u => ({
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      role: u.role,
+      yellowCards: u.cards.filter(c => c.type === 'YELLOW').length,
+      redCards: u.cards.filter(c => c.type === 'RED').length
+    }));
   });
 
   fastify.patch('/:id/role', {

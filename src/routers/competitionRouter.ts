@@ -2,6 +2,7 @@ import { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import { requireAdmin } from '../plugins/auth';
 import { prisma } from '../db/prisma';
+import { CompetitionType } from '@prisma/client';
 
 const CompetitionResponse = z.object({
   id: z.string(),
@@ -39,7 +40,7 @@ export const competitionRouter: FastifyPluginAsyncZod = async (fastify) => {
     }
   }, async (request) => {
     return await prisma.competition.create({
-      data: request.body
+      data: { ...request.body, type: request.body.type as CompetitionType }
     });
   });
 };
